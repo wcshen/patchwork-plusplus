@@ -49,7 +49,7 @@ if __name__ == "__main__":
         print("Origianl Points  #: ", pointcloud.shape[0])
         print("Ground Points    #: ", ground.shape[0])
         print("Nonground Points #: ", nonground.shape[0])
-        print("Time Taken : ", time_taken / 1000000, "(sec)")
+        print("Time Taken : ", time_taken / 1000, "(ms)")
         print("Press ... \n")
         print("\t H  : help")
         print("\t N  : visualize the surface normals")

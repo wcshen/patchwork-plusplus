@@ -6,6 +6,9 @@ import numpy as np
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 input_cloud_filepath = os.path.join(cur_dir, '../../data/000000.bin')
+pcd_bin_path = "/home/swc/Plus/datasets/vis/iv_hesai/bin/000042.1672998227.593434.20230106T165434_j7-00004_12_67to87.bin"
+pcd_path = "/home/swc/Plus/datasets/unknown/dropped_objects/training/pointcloud/000030.1688951083.489946.20230710T083304_pdb-l4e-b0001_1_918to950.bin"
+unkonwn_path = "/home/swc/Plus/datasets/unknown/pcds/1688950411.285.pcd"
 
 try:
     patchwork_module_path = os.path.join(cur_dir, "../../build/python_wrapper")
@@ -21,6 +24,18 @@ def read_bin(bin_path):
 
     return scan
 
+def read_pcd(pcd_file, pcd_field_num=4):
+    # with open(pcd_file, 'rb') as f:
+    #     data = f.read()
+    #     data_binary = data[data.find(b"DATA binary") + 12:]
+    #     print(f"size: {np.frombuffer(data_binary, dtype=np.float64).shape}")
+    #     points = np.frombuffer(data_binary, dtype=np.float32).reshape(-1, pcd_field_num)
+    #     points = points.astype(np.float32)
+    # points = points[:, :4]
+    pcd = o3d.io.read_point_cloud(pcd_file)
+    points = np.asarray(pcd.points)
+    return points
+
 if __name__ == "__main__":
 
     # Patchwork++ initialization
@@ -30,15 +45,20 @@ if __name__ == "__main__":
     PatchworkPLUSPLUS = pypatchworkpp.patchworkpp(params)
 
     # Load point cloud
-    pointcloud = read_bin(input_cloud_filepath)
+    print(f"Load point cloud")
+    pointcloud = read_bin(pcd_path)
+    # pointcloud = read_pcd(unkonwn_path, pcd_field_num=6)
 
     # Estimate Ground
+    print(f"Estimate Ground")
     PatchworkPLUSPLUS.estimateGround(pointcloud)
 
     # Get Ground and Nonground
+    print(f"Get Ground and Nonground")
     ground      = PatchworkPLUSPLUS.getGround()
     nonground   = PatchworkPLUSPLUS.getNonground()
     time_taken  = PatchworkPLUSPLUS.getTimeTaken()
+    height = PatchworkPLUSPLUS.getHeight()
 
     # Get centers and normals for patches
     centers     = PatchworkPLUSPLUS.getCenters()
@@ -47,7 +67,8 @@ if __name__ == "__main__":
     print("Origianl Points  #: ", pointcloud.shape[0])
     print("Ground Points    #: ", ground.shape[0])
     print("Nonground Points #: ", nonground.shape[0])
-    print("Time Taken : ", time_taken / 1000000, "(sec)")
+    print(f"height: {height}")
+    print("Time Taken : ", time_taken / 1000, "(ms)")
     print("Press ... \n")
     print("\t H  : help")
     print("\t N  : visualize the surface normals")
